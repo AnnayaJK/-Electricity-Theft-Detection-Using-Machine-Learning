@@ -1,0 +1,102 @@
+{
+  "data_source": "SYNTHETIC data (SGCC file not found)",
+  "n_records": 2500,
+  "n_theft": 287,
+  "n_train": 1875,
+  "n_test": 625,
+  "best_model": "random_forest",
+  "features": [
+    "prev_month",
+    "curr_month",
+    "avg_consumption",
+    "change_pct",
+    "curr_to_avg",
+    "cv",
+    "zero_days_pct"
+  ],
+  "feature_medians": {
+    "prev_month": 254.546,
+    "curr_month": 290.855,
+    "avg_consumption": 289.289,
+    "change_pct": 13.831,
+    "curr_to_avg": 1.028,
+    "cv": 0.267,
+    "zero_days_pct": 0.0
+  },
+  "results": {
+    "logistic_regression": {
+      "name": "Logistic Regression",
+      "accuracy": 0.9872,
+      "precision": 0.9210526315789473,
+      "recall": 0.9722222222222222,
+      "f1": 0.9459459459459459,
+      "roc_auc": 0.9983926059875426
+    },
+    "decision_tree": {
+      "name": "Decision Tree",
+      "accuracy": 0.9808,
+      "precision": 0.8846153846153846,
+      "recall": 0.9583333333333334,
+      "f1": 0.92,
+      "roc_auc": 0.976491862567812
+    },
+    "random_forest": {
+      "name": "Random Forest",
+      "accuracy": 0.9904,
+      "precision": 0.9714285714285714,
+      "recall": 0.9444444444444444,
+      "f1": 0.9577464788732394,
+      "roc_auc": 0.9978902953586499
+    },
+    "svm": {
+      "name": "SVM",
+      "accuracy": 0.9904,
+      "precision": 0.9583333333333334,
+      "recall": 0.9583333333333334,
+      "f1": 0.9583333333333334,
+      "roc_auc": 0.9963331324090818
+    }
+  },
+  "confusion_matrices": {
+    "logistic_regression": [
+      [
+        547,
+        6
+      ],
+      [
+        2,
+        70
+      ]
+    ],
+    "decision_tree": [
+      [
+        544,
+        9
+      ],
+      [
+        3,
+        69
+      ]
+    ],
+    "random_forest": [
+      [
+        551,
+        2
+      ],
+      [
+        4,
+        68
+      ]
+    ],
+    "svm": [
+      [
+        550,
+        3
+      ],
+      [
+        3,
+        69
+      ]
+    ]
+  }
+}

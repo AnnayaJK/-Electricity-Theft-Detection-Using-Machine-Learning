@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Dashboard &middot; Electricity Theft Detection{% endblock %}
+{% block content %}
+<h1>Dashboard</h1>
+
+<section class="stats">
+  <div class="stat"><span>{{ live.total }}</span>Records analyzed on this site</div>
+  <div class="stat"><span class="red">{{ live.suspicious }}</span>Predicted suspicious</div>
+  <div class="stat"><span class="blue">{{ live.normal }}</span>Predicted normal</div>
+  <div class="stat"><span>{{ '%.1f'|format(meta.results[meta.best_model].accuracy * 100) }}%</span>Best-model accuracy ({{ names[meta.best_model] }})</div>
+</section>
+
+<section class="card">
+  <h3>Model evaluation (held-out test set, {{ meta.n_test }} customers)</h3>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Algorithm</th><th>Accuracy</th><th>Precision</th><th>Recall</th><th>F1-score</th><th>ROC-AUC</th></tr></thead>
+    <tbody>
+    {% for k, r in meta.results.items() %}
+      <tr class="{{ 'best' if k == meta.best_model }}">
+        <td>{{ r.name }}{{ ' &#9733;' | safe if k == meta.best_model }}</td>
+        <td>{{ '%.3f'|format(r.accuracy) }}</td><td>{{ '%.3f'|format(r.precision) }}</td>
+        <td>{{ '%.3f'|format(r.recall) }}</td><td>{{ '%.3f'|format(r.f1) }}</td><td>{{ '%.3f'|format(r.roc_auc) }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  <p><small>&#9733; best by F1-score. Training data: {{ meta.data_source }}. Accuracy alone is misleading here because
+     theft cases are a small minority, so precision, recall and F1 matter more.</small></p>
+</section>
+
+{% if batch %}
+<section class="card">
+  <h3>Upload Results &middot; {{ batch.model }}</h3>
+  <p>
+    <strong>{{ batch.total }}</strong> records analyzed &nbsp;&middot;&nbsp;
+    <span class="tag bad">{{ batch.suspicious }} suspicious</span>
+    <span class="tag good">{{ batch.normal }} normal</span>
+  </p>
+  <div class="scroll">
+    <table>
+      <thead><tr>{% for c in batch.columns %}<th>{{ c }}</th>{% endfor %}</tr></thead>
+      <tbody>
+        {% for r in batch.rows %}
+        <tr class="{{ 'row-bad' if r['prediction'] == 'Suspicious' }}">
+          {% for c in batch.columns %}<td>{{ r[c] }}</td>{% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if batch.total > 100 %}<p><small>Showing the 100 highest-scoring rows.</small></p>{% endif %}
+  <form method="post" action="{{ url_for('download') }}">
+    <input type="hidden" name="csv" value="{{ batch.csv }}">
+    <button class="btn secondary" type="submit">Download full results (CSV)</button>
+  </form>
+</section>
+{% endif %}
+
+<section class="card">
+  <h3>Algorithm comparison</h3>
+  <img src="{{ url_for('static', filename='charts/metrics_comparison.png') }}" alt="Metric comparison chart">
+</section>
+<section class="card">
+  <h3>Average monthly consumption: normal vs theft</h3>
+  <img src="{{ url_for('static', filename='charts/consumption_pattern.png') }}" alt="Consumption pattern chart">
+</section>
+<section class="card">
+  <h3>Confusion matrices</h3>
+  <img src="{{ url_for('static', filename='charts/confusion_matrices.png') }}" alt="Confusion matrices">
+</section>
+<section class="card">
+  <h3>Dataset overview &amp; feature importance</h3>
+  <img src="{{ url_for('static', filename='charts/data_overview.png') }}" alt="Data overview">
+</section>
+{% endblock %}

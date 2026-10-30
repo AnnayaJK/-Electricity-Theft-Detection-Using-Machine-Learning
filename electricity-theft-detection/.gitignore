@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.env
+venv/
+env/
+
+# Database (predictions log - regenerates on use)
+predictions.db
+
+# Data (too large for GitHub, real SGCC file)
+data/data.csv
+
+# OS
+.DS_Store
+Thumbs.db

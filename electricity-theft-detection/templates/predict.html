@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Predict &middot; Electricity Theft Detection{% endblock %}
+{% block content %}
+<h1>Analyze Consumption</h1>
+
+<div class="grid2">
+  <section class="card">
+    <h3>Option 1 &middot; Enter details</h3>
+    <form method="post" action="{{ url_for('predict') }}">
+      <label>Model
+        <select name="model">
+          {% for k, n in model_names.items() %}
+          <option value="{{ k }}" {{ 'selected' if (form.get('model', best) == k) }}>{{ n }}{{ ' (best)' if k == best and not form.get('model') }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>{{ labels.prev_month }} *
+        <input type="number" step="any" min="0" name="prev_month" value="{{ form.get('prev_month', '') }}" placeholder="e.g. 300" required></label>
+      <label>{{ labels.curr_month }} *
+        <input type="number" step="any" min="0" name="curr_month" value="{{ form.get('curr_month', '') }}" placeholder="e.g. 45" required></label>
+      <label>{{ labels.avg_consumption }} *
+        <input type="number" step="any" min="0" name="avg_consumption" value="{{ form.get('avg_consumption', '') }}" placeholder="e.g. 280" required></label>
+      <label>{{ labels.change_pct }} <small>(auto-calculated if empty)</small>
+        <input type="number" step="any" name="change_pct" value="{{ form.get('change_pct', '') }}" placeholder="e.g. -85"></label>
+      <details>
+        <summary>Optional extra details</summary>
+        <label>{{ labels.cv }}
+          <input type="number" step="any" min="0" name="cv" value="{{ form.get('cv', '') }}"></label>
+        <label>{{ labels.zero_days_pct }}
+          <input type="number" step="any" min="0" max="100" name="zero_days_pct" value="{{ form.get('zero_days_pct', '') }}"></label>
+      </details>
+      <button class="btn" type="submit">Analyze</button>
+    </form>
+  </section>
+
+  <section class="card">
+    <h3>Option 2 &middot; Upload a CSV</h3>
+    <p>Required columns: <code>prev_month</code>, <code>curr_month</code>, <code>avg_consumption</code>.
+       Optional: <code>change_pct</code>, <code>cv</code>, <code>zero_days_pct</code>.</p>
+    <form method="post" action="{{ url_for('upload') }}" enctype="multipart/form-data">
+      <label>Model
+        <select name="model">
+          {% for k, n in model_names.items() %}
+          <option value="{{ k }}" {{ 'selected' if k == best }}>{{ n }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <input type="file" name="file" accept=".csv" required>
+      <button class="btn" type="submit">Upload &amp; Analyze</button>
+    </form>
+    <p><a href="{{ url_for('sample') }}">Download a sample CSV</a></p>
+  </section>
+</div>
+
+{% if result %}
+<section class="result {{ 'bad' if result.suspicious else 'good' }}">
+  {% if result.suspicious %}
+    <h2>&#9888;&#65039; Potentially Suspicious Consumption</h2>
+    <p>This record needs further investigation. It does not prove electricity theft.</p>
+  {% else %}
+    <h2>&#9989; Normal Consumption Pattern</h2>
+    <p>No unusual pattern detected for this record.</p>
+  {% endif %}
+  <ul class="plain">
+    <li>Suspicion score: <strong>{{ result.probability }}%</strong> &middot; Risk level: <strong>{{ result.risk }}</strong></li>
+    <li>Consumption change used: <strong>{{ result.change_pct }}%</strong></li>
+    <li>Model: {{ result.model }}</li>
+  </ul>
+</section>
+{% endif %}
+
+{% if batch %}
+<section class="card">
+  <h3>Results &middot; {{ batch.model }}</h3>
+  <p><strong>{{ batch.total }}</strong> records analyzed &middot;
+     <span class="tag bad">{{ batch.suspicious }} suspicious</span>
+     <span class="tag good">{{ batch.normal }} normal</span></p>
+  <div class="scroll">
+    <table>
+      <thead><tr>{% for c in batch.columns %}<th>{{ c }}</th>{% endfor %}</tr></thead>
+      <tbody>
+        {% for r in batch.rows %}
+        <tr class="{{ 'row-bad' if r['prediction'] == 'Suspicious' }}">
+          {% for c in batch.columns %}<td>{{ r[c] }}</td>{% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if batch.total > 100 %}<p><small>Showing the 100 highest-scoring rows.</small></p>{% endif %}
+  <form method="post" action="{{ url_for('download') }}">
+    <input type="hidden" name="csv" value="{{ batch.csv }}">
+    <button class="btn secondary" type="submit">Download full results (CSV)</button>
+  </form>
+</section>
+{% endif %}
+{% endblock %}

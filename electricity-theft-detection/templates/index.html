@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <h1>Smart Electricity Theft Detection System</h1>
+  <p>A machine learning system that studies electricity consumption patterns and flags records that look
+     suspicious, so inspectors can focus on the cases most worth checking.</p>
+  <a class="btn big" href="{{ url_for('predict') }}">Start Analyzing Consumption &rarr;</a>
+</section>
+
+<section class="grid3">
+  <div class="card">
+    <h3>Why it matters</h3>
+    <p>Electricity theft (meter tampering, bypassing, illegal connections) causes large revenue loss for
+       utilities, overloads the grid and raises costs for honest consumers.</p>
+  </div>
+  <div class="card">
+    <h3>How it works</h3>
+    <p>Consumption data is turned into features such as monthly change, variability and zero-reading days.
+       Four classifiers are trained and compared; the best one powers the predictions.</p>
+  </div>
+  <div class="card">
+    <h3>What it does not do</h3>
+    <p>A "suspicious" result is a lead for investigation, <strong>not proof</strong> of theft. Genuine
+       holidays, outages or vacant premises can look similar.</p>
+  </div>
+</section>
+
+<section class="card">
+  <h3>Project at a glance</h3>
+  <ul class="plain">
+    <li><strong>Algorithms compared:</strong> Logistic Regression, Decision Tree, Random Forest, SVM</li>
+    <li><strong>Best model (by F1-score):</strong> {{ meta.results[meta.best_model].name }}</li>
+    <li><strong>Training data:</strong> {{ meta.data_source }} &mdash; {{ meta.n_records }} customers</li>
+  </ul>
+</section>
+{% endblock %}
